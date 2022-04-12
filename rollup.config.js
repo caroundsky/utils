@@ -5,7 +5,8 @@ import resolve from "rollup-plugin-node-resolve"
 import commonjs from "rollup-plugin-commonjs"
 // ES6 转 ES5，让我们可以使用 ES6 新特性来编写代码
 import babel from "rollup-plugin-babel"
-import requireContext from "rollup-plugin-require-context2"
+// 删除之前构建的内容
+import clear from "rollup-plugin-clear"
 
 const path = require("path")
 
@@ -33,7 +34,9 @@ export default {
   ],
   plugins: [
     resolve(),
-    requireContext(),
+    clear({
+      targets: ["lib"],
+    }),
     babel({
       exclude: "node_modules/**",
     }),
