@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "es5",
     "module": "es2015",
     "lib": ["es2015", "es2016", "es2017", "dom"],
@@ -9,6 +10,12 @@
     "typeRoots": ["node_modules/@types"],
     "moduleResolution": "node",
     "esModuleInterop": true,
+    "paths": {
+      "@/*": [ "./src/*" ],
+    }
   },
+  "include": [
+    "src/*"
+  ],
   "exclude": ["./test", "./lib", "node_modules/"]
 }

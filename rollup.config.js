@@ -8,6 +8,8 @@ import babel from 'rollup-plugin-babel'
 // 删除之前构建的内容
 import clear from 'rollup-plugin-clear'
 import json from 'rollup-plugin-json'
+// 定义路径别名
+// import alias from 'rollup-plugin-alias'
 
 const path = require('path')
 
@@ -34,6 +36,12 @@ export default {
     },
   ],
   plugins: [
+    // alias({
+    //   resolve: ['.jsx', '.js'],
+    //   entries: {
+    //     '@': path.resolve(__dirname, './src'),
+    //   },
+    // }),
     resolve({
       preferBuiltins: true,
       mainFields: ['browser', 'jsnext', 'module', 'main'],

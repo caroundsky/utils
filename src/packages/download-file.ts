@@ -1,19 +1,24 @@
 import Axios, { AxiosRequestConfig } from 'axios'
+
+import { setDefalut } from '@/help'
 interface DownLoadConfig {
+  url: string
   config: AxiosRequestConfig
   fileName?: string
   suffix?: string
   errReg: RegExp
 }
 
-export default function downLoadFile(
-  options: DownLoadConfig = {
-    config: {},
-    suffix: 'xlsx',
-    errReg: /"msg":/gi,
-  }
-) {
-  const { config, fileName, suffix, errReg } = options
+const DEFAULT_VALUE = {
+  suffix: 'xlsx',
+  errReg: /msg:/gi,
+}
+
+export default function downLoadFile(options: DownLoadConfig) {
+  const { config, fileName, suffix, errReg } = setDefalut(
+    options,
+    DEFAULT_VALUE
+  )
   return new Promise<void>((resolve, reject) => {
     Axios({
       method: 'post',
@@ -50,6 +55,7 @@ export default function downLoadFile(
             return reject(res)
           }
         } catch (e) {
+          console.log(e)
           alert(
             '您的浏览器版本太低，可能会导致导出失败，建议升级您的浏览器版本'
           )
@@ -76,7 +82,6 @@ export default function downLoadFile(
         setTimeout(() => URL.revokeObjectURL(downloadUrl), 100)
 
         resolve()
-        console.log('ok')
       })
       .catch((err) => {
         return reject(err)
