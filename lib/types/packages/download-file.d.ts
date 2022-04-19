@@ -1,10 +1,8 @@
-import { AxiosRequestConfig } from 'axios';
-interface DownLoadConfig {
-    url: string;
-    config: AxiosRequestConfig;
+import { AxiosRequestConfig } from "axios";
+interface DownLoadConfig extends AxiosRequestConfig {
     fileName?: string;
     suffix?: string;
-    errReg: RegExp;
+    errMatch: string;
 }
-export default function downLoadFile(options: DownLoadConfig): Promise<void>;
+export default function downLoadFile(url: string, options: DownLoadConfig): Promise<void>;
 export {};

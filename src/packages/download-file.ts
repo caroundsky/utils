@@ -1,73 +1,82 @@
-import Axios, { AxiosRequestConfig } from 'axios'
+import { AxiosRequestConfig } from "axios"
+import { setDefalut, Axios } from "@/help"
 
-import { setDefalut } from '@/help'
-interface DownLoadConfig {
-  url: string
-  config: AxiosRequestConfig
+interface DownLoadConfig extends AxiosRequestConfig {
   fileName?: string
   suffix?: string
-  errReg: RegExp
+  errMatch: string
 }
 
 const DEFAULT_VALUE = {
-  suffix: 'xlsx',
-  errReg: /msg:/gi,
+  suffix: "xlsx",
+  errMatch: '"msg',
 }
 
-export default function downLoadFile(options: DownLoadConfig) {
-  const { config, fileName, suffix, errReg } = setDefalut(
-    options,
-    DEFAULT_VALUE
-  )
+export default function downLoadFile(url: string, options: DownLoadConfig) {
+  const {
+    fileName,
+    suffix,
+    errMatch,
+    transformResponse,
+    ...config
+  } = setDefalut(options, DEFAULT_VALUE)
+  config["headers"] = { Accept: "application/json, text/plain, */*" }
   return new Promise<void>((resolve, reject) => {
     Axios({
-      method: 'post',
-      responseType: 'blob',
+      url,
+      method: "post",
+      responseType: "blob",
       withCredentials: true,
+      validateStatus: (status) => {
+        return [200].includes(status)
+      },
       ...config,
     })
-      .then(async (res) => {
+      .then(async (res: any) => {
+        if (typeof transformResponse === "function") {
+          res = transformResponse(res)
+        }
         const { headers, data, status } = res
-        if (status !== 200) return reject(res)
+        if (status !== 200)
+          return reject({
+            errMsg: res,
+          })
 
-        let _fileName = ''
+        let _fileName = ""
         if (fileName) {
           _fileName = `${fileName}.${suffix}`
         } else {
-          const disposition = headers['content-disposition']
-          if (disposition && disposition.indexOf('attchement') !== -1) {
+          const disposition = headers.get("content-disposition")
+          if (disposition && disposition.indexOf("attchement") !== -1) {
             let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
             let matches = filenameRegex.exec(disposition)
             if (matches != null && matches[1]) {
-              _fileName = decodeURI(matches[1].replace(/['"]/g, ''))
+              _fileName = decodeURI(matches[1].replace(/['"]/g, ""))
             }
           }
         }
 
-        const type = headers['Content-Type']
-        const blob =
-          new Blob([data], { type }) || new File([data], _fileName, { type })
-
         try {
-          const content = await blob.text()
-          if (errReg.test(content)) {
-            res.data.msg = JSON.parse(content)
-            return reject(res)
+          const content = await data.text()
+          if (JSON.stringify(content).indexOf(errMatch) > -1) {
+            return reject({
+              errMsg: content,
+            })
           }
         } catch (e) {
           console.log(e)
           alert(
-            '您的浏览器版本太低，可能会导致导出失败，建议升级您的浏览器版本'
+            "您的浏览器版本太低，可能会导致导出失败，建议升级您的浏览器版本"
           )
         }
 
         const URL = window.URL || window.webkitURL
-        const downloadUrl = URL.createObjectURL(blob)
+        const downloadUrl = URL.createObjectURL(data)
 
         if (_fileName) {
-          const a = document.createElement('a')
+          const a = document.createElement("a")
           // safari 还不支持 HTML a[download] 方式
-          if (typeof a.download === 'undefined') {
+          if (typeof a.download === "undefined") {
             window.location.href = downloadUrl
           } else {
             a.href = downloadUrl
@@ -84,7 +93,9 @@ export default function downLoadFile(options: DownLoadConfig) {
         resolve()
       })
       .catch((err) => {
-        return reject(err)
+        return reject({
+          errMsg: err,
+        })
       })
   })
 }
