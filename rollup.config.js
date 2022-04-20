@@ -9,6 +9,10 @@ import babel from "rollup-plugin-babel"
 import clear from "rollup-plugin-clear"
 import json from "rollup-plugin-json"
 
+import { uglify } from "rollup-plugin-uglify"
+import serve from "rollup-plugin-serve"
+import livereload from "rollup-plugin-livereload"
+
 const path = require("path")
 
 const inputPath = path.resolve(__dirname, "./src/index.ts")
@@ -51,5 +55,15 @@ export default {
       useTsconfigDeclarationDir: true, // 自动生成types 声明
     }),
     json(),
+    uglify(),
+    // 热更新 默认监听根文件夹
+    livereload(),
+    // 本地服务器
+    serve({
+      open: true, // 自动打开页面
+      port: 8080,
+      openPage: "index.html", // 打开的页面
+      contentBase: "",
+    }),
   ],
 }

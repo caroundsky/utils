@@ -9,7 +9,9 @@
 <body>
     
 </body>
-<script src="./lib/utils.umd.js"></script>
-<script>
+<!-- <script src="./lib/utils.umd.js" ></script> -->
+<script type="module">
+    import { formatUrl } from './lib/utils.esm.js'
+    console.log(formatUrl('https://www.baidu.com/s?wd=rollup%20%E9%A1%B9%E7%9B%AE%E6%9C%AC%E5%9C%B0%E8%B0%83%E8%AF%95&rsv_spt=1&rsv_iqid=0xf282b21c000003ff&issp=1&f=8&rsv_bp=1&rsv_idx=2&ie=utf-8&rqlang=cn&tn=baiduhome_pg&rsv_dl=tb&rsv_enter=1&oq=rollup%2520%25E9%25A1%25B9%25E7%259B%25AE%25E8%25B0%2583%25E8%25AF%2595&rsv_btype=t&inputT=705&rsv_t=caf6jyzyDF53QSVb5JSEkF2U4PX8QaCmj26uL38Ohv208%2FUoVsGWbjJ4aDPHgSLU636k&rsv_sug3=32&rsv_sug1=12&rsv_sug7=100&rsv_pq=f8c0efcf00003edf&rsv_sug2=0&rsv_sug4=3473'))
 </script>
 </html>
