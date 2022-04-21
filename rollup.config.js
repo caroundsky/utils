@@ -20,6 +20,9 @@ const outputUmdPath = path.resolve(__dirname, "./lib/utils.umd.js")
 const outputEsPath = path.resolve(__dirname, "./lib/utils.esm.js")
 const outputCjsPath = path.resolve(__dirname, "./lib/utils.cjs.js")
 
+// 判断是是否为生产环境
+const isPro = process.env.NODE_ENV === "production"
+
 export default {
   input: inputPath,
   output: [
@@ -55,15 +58,16 @@ export default {
       useTsconfigDeclarationDir: true, // 自动生成types 声明
     }),
     json(),
-    uglify(),
+    isPro && uglify(),
     // 热更新 默认监听根文件夹
-    livereload(),
+    !isPro && livereload(),
     // 本地服务器
-    serve({
-      open: true, // 自动打开页面
-      port: 8080,
-      openPage: "index.html", // 打开的页面
-      contentBase: "",
-    }),
+    !isPro &&
+      serve({
+        open: true, // 自动打开页面
+        port: 8080,
+        openPage: "/index.html", // 打开的页面
+        contentBase: "",
+      }),
   ],
 }
