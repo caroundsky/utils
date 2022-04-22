@@ -29,13 +29,16 @@ function getFile(url) {
       url,
       method: "get",
       responseType: "blob",
-      withCredentials: true,
     })
       .then((res) => {
+        const { status, msg } = res;
+        if (/^[4,5]/.test(status.toString())) {
+          reject(msg);
+        }
         resolve(res);
       })
       .catch((error) => {
-        reject(error.toString());
+        reject(error.msg || error.message);
       });
   });
 }
@@ -43,33 +46,37 @@ export default function filesZip(
   fileList: Array<fileListConfig>,
   options: DownLoadConfig
 ) {
-  const { prefix, fileName, suffix, ...config } = setDefalut(
-    options,
-    DEFAULT_VALUE
-  );
+  const { prefix, fileName, suffix } = setDefalut(options, DEFAULT_VALUE);
   let zip = new JSZip();
   let promiseList = [];
   for (let item of fileList) {
     const url = prefix ? `${prefix}${item.fileUrl}` : item.fileUrl;
-    const promise = getFile(url).then((res: any) => {
-      // 下载文件, 并存成文件流对象
-      const { headers, data } = res;
-      let file_name = "";
-      if (item["name"]) {
-        file_name = `${new Date().getTime()}${item.name}`;
-      } else {
-        const disposition = headers.get("content-disposition");
-        if (disposition && disposition.indexOf("attchement") !== -1) {
-          let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-          let matches = filenameRegex.exec(disposition);
-          if (matches != null && matches[1]) {
-            file_name = decodeURI(matches[1].replace(/['"]/g, ""));
+    const promise = new Promise((resolve, reject) => {
+      getFile(url)
+        .then((res: any) => {
+          // 下载文件, 并存成文件流对象
+          const { headers, data } = res;
+          let file_name = "";
+          if (item["name"]) {
+            file_name = `${new Date().getTime()}${item.name}`;
+          } else {
+            const disposition = headers.get("content-disposition");
+            if (disposition && disposition.indexOf("attchement") !== -1) {
+              let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+              let matches = filenameRegex.exec(disposition);
+              if (matches != null && matches[1]) {
+                file_name = decodeURI(matches[1].replace(/['"]/g, ""));
+              }
+            } else {
+              reject("获取服务端返回的文件名失败");
+            }
           }
-        } else {
-          console.log("获取服务端返回的文件名失败");
-        }
-      }
-      zip.file(file_name, data, { binary: true }); // 逐个添加文件
+          zip.file(file_name, data, { binary: true }); // 逐个添加文件
+          resolve(true);
+        })
+        .catch((err) => {
+          reject(err);
+        });
     });
     promiseList.push(promise);
   }
