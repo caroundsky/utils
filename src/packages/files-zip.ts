@@ -3,19 +3,19 @@ import JSZip from "jszip";
 import FileSaver from "file-saver";
 
 /**
- * 单个文件参数
  * prefix:每个文件下载路径前缀
  * fileName:压缩文件名
  * suffix:压缩文件后缀
+ * fileList:压缩文件数组
  */
 interface DownLoadConfig {
   prefix?: string;
   fileName?: string;
   suffix?: string;
-}
-interface fileListConfig {
-  fileUrl: string;
-  name?: string;
+  fileList: Array<{
+    fileUrl: string;
+    name?: string;
+  }>;
 }
 
 const DEFAULT_VALUE = {
@@ -29,21 +29,28 @@ function getFile(url) {
       url,
       method: "get",
       responseType: "blob",
-      withCredentials: true,
     })
       .then((res) => {
+        const { status, msg } = res;
+        if (/^[4,5]/.test(status.toString())) {
+          reject({
+            msg: msg,
+            url: url,
+          });
+        }
         resolve(res);
       })
       .catch((error) => {
-        reject(error.toString());
+        const err = {
+          msg: error.msg || error.message,
+          url: url,
+        };
+        reject(err);
       });
   });
 }
-export default function filesZip(
-  fileList: Array<fileListConfig>,
-  options: DownLoadConfig
-) {
-  const { prefix, fileName, suffix, ...config } = setDefalut(
+export default function filesZip(options: DownLoadConfig) {
+  const { prefix, fileName, suffix, fileList } = setDefalut(
     options,
     DEFAULT_VALUE
   );
@@ -66,11 +73,14 @@ export default function filesZip(
             file_name = decodeURI(matches[1].replace(/['"]/g, ""));
           }
         } else {
-          console.log("获取服务端返回的文件名失败");
+          // reject("获取服务端返回的文件名失败");
+          const arr = item.fileUrl.split("/");
+          file_name = arr[arr.length - 1];
         }
       }
       zip.file(file_name, data, { binary: true }); // 逐个添加文件
     });
+
     promiseList.push(promise);
   }
 
