@@ -8,7 +8,7 @@
   "scripts": {
     "serve": "rollup -c -w",
     "build": "node build & cross-env NODE_ENV=production rollup --config rollup.config.js",
-    "publish": "node publish.js"
+    "publish": "node publish-npm.js"
   },
   "keywords": [
     "rollup",
@@ -46,5 +46,16 @@
   },
   "dependencies": {
     "file-saver": "^2.0.5"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caroundsky/utils.git"
+  },
+  "bugs": {
+    "url": "https://github.com/caroundsky/utils/issues"
   }
 }
