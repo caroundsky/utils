@@ -1,5 +1,5 @@
-import { AxiosRequestConfig } from "axios"
-import { setDefalut, Axios } from "@/help"
+import { AxiosRequestConfig } from 'axios'
+import { setDefalut, Axios } from '@/help'
 
 interface DownLoadConfig extends AxiosRequestConfig {
   fileName?: string
@@ -8,7 +8,7 @@ interface DownLoadConfig extends AxiosRequestConfig {
 }
 
 const DEFAULT_VALUE = {
-  suffix: "xlsx",
+  suffix: 'xlsx',
   errMatch: '"msg',
 }
 
@@ -20,12 +20,12 @@ export default function downLoadFile(url: string, options: DownLoadConfig) {
     transformResponse,
     ...config
   } = setDefalut(options, DEFAULT_VALUE)
-  config["headers"] = { Accept: "application/json, text/plain, */*" }
+  config['headers'] = { Accept: 'application/json, text/plain, */*' }
   return new Promise<void>((resolve, reject) => {
     Axios({
       url,
-      method: "post",
-      responseType: "blob",
+      method: 'post',
+      responseType: 'blob',
       withCredentials: true,
       validateStatus: (status) => {
         return [200].includes(status)
@@ -33,7 +33,7 @@ export default function downLoadFile(url: string, options: DownLoadConfig) {
       ...config,
     })
       .then(async (res: any) => {
-        if (typeof transformResponse === "function") {
+        if (typeof transformResponse === 'function') {
           res = transformResponse(res)
         }
         const { headers, data, status } = res
@@ -42,16 +42,16 @@ export default function downLoadFile(url: string, options: DownLoadConfig) {
             errMsg: res,
           })
 
-        let _fileName = ""
+        let _fileName = ''
         if (fileName) {
           _fileName = `${fileName}.${suffix}`
         } else {
-          const disposition = headers.get("content-disposition")
-          if (disposition && disposition.indexOf("attchement") !== -1) {
+          const disposition = headers.get('content-disposition')
+          if (disposition && disposition.indexOf('attchement') !== -1) {
             let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
             let matches = filenameRegex.exec(disposition)
             if (matches != null && matches[1]) {
-              _fileName = decodeURI(matches[1].replace(/['"]/g, ""))
+              _fileName = decodeURI(matches[1].replace(/['"]/g, ''))
             }
           }
         }
@@ -66,7 +66,7 @@ export default function downLoadFile(url: string, options: DownLoadConfig) {
         } catch (e) {
           console.log(e)
           alert(
-            "您的浏览器版本太低，可能会导致导出失败，建议升级您的浏览器版本"
+            '您的浏览器版本太低，可能会导致导出失败，建议升级您的浏览器版本'
           )
         }
 
@@ -74,9 +74,9 @@ export default function downLoadFile(url: string, options: DownLoadConfig) {
         const downloadUrl = URL.createObjectURL(data)
 
         if (_fileName) {
-          const a = document.createElement("a")
+          const a = document.createElement('a')
           // safari 还不支持 HTML a[download] 方式
-          if (typeof a.download === "undefined") {
+          if (typeof a.download === 'undefined') {
             window.location.href = downloadUrl
           } else {
             a.href = downloadUrl

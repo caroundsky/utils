@@ -2,31 +2,25 @@ interface config {
   url: string
   doc?: Document
   attrs?: Object
-  callback?: Function
 }
 
-export default function appendScript({
-  doc = document,
-  url,
-  attrs,
-  callback,
-}: config) {
+export default function appendScript({ doc = document, url, attrs }: config) {
   try {
-    const $s = document.createElement("script")
-    $s.src = url
-    if (attrs) {
-      Object.keys(attrs).forEach(function (key) {
-        $s.setAttribute(key, attrs[key])
-      })
-    }
+    return new Promise((resolve) => {
+      const $s = document.createElement('script')
+      $s.src = url
+      if (attrs) {
+        Object.keys(attrs).forEach(function (key) {
+          $s.setAttribute(key, attrs[key])
+        })
+      }
 
-    if (typeof callback === "function") {
-      $s.addEventListener("load", function () {
-        callback(this)
+      $s.addEventListener('load', function () {
+        resolve(this)
       })
-    }
 
-    doc.body.appendChild($s)
+      doc.body.appendChild($s)
+    })
   } catch (e) {
     console.log(e)
   }
