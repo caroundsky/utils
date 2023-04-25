@@ -47,6 +47,7 @@ export default {
     resolve({
       preferBuiltins: true,
       mainFields: ['browser', 'jsnext', 'module', 'main'],
+      extensions: ['.js', '.ts'],
     }),
     commonjs(),
     clear({
@@ -55,7 +56,7 @@ export default {
     typescript({
       exclude: 'node_modules/**',
       typescript: require('typescript'),
-      useTsconfigDeclarationDir: true, // 自动生成types 声明
+      useTsconfigDeclarationDir: isPro, // 自动生成types 声明
     }),
     json(),
     isPro && uglify(),

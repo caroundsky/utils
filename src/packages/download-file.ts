@@ -4,6 +4,7 @@ import { setDefalut, Axios } from '@/help'
 interface DownLoadConfig extends AxiosRequestConfig {
   fileName?: string
   suffix?: string
+  transformResponse?: () => {}
   errMatch: string
 }
 
@@ -12,14 +13,15 @@ const DEFAULT_VALUE = {
   errMatch: '"msg',
 }
 
+/**
+ * 导出文件
+ *
+ * @param {string} url 导出地址
+ * @param {DownLoadConfig} options { fileName: 自定义文件名, suffix: 自定义后缀, transformResponse: 返回值转换, errMatch: 错误信息匹配关键字 }
+ */
 export default function downLoadFile(url: string, options: DownLoadConfig) {
-  const {
-    fileName,
-    suffix,
-    errMatch,
-    transformResponse,
-    ...config
-  } = setDefalut(options, DEFAULT_VALUE)
+  const { fileName, suffix, errMatch, transformResponse, ...config } =
+    setDefalut(options, DEFAULT_VALUE)
   config['headers'] = { Accept: 'application/json, text/plain, */*' }
   return new Promise<void>((resolve, reject) => {
     Axios({

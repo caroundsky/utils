@@ -1,4 +1,4 @@
-import { KeyMap } from "../interfaces";
+import { KeyMap } from '../interfaces';
 /**
  * URL 参数 转换成对象
  * @param {*} url 网址
